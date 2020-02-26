@@ -1,0 +1,49 @@
+group 'com.shopify.syrup'
+version '0.2'
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+    }
+}
+
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'kotlin'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    google()
+    jcenter()
+}
+
+dependencies {
+    implementation "org.yaml:snakeyaml:1.24"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.61"
+}
+
+gradlePlugin {
+    plugins {
+        syrupPlugin {
+            id = 'com.shopify.syrup'
+            implementationClass = 'com.shopify.syrup.SyrupPlugin'
+        }
+    }
+}
+
+shadowJar {
+    archiveClassifier = null
+    minimize()
+}
+
+task publishBinary(type: Copy) {
+    dependsOn shadowJar
+    from('./build/libs') {
+        include "*.jar"
+    }
+    into 'lib'
+}
