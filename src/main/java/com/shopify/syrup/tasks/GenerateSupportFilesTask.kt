@@ -4,12 +4,14 @@ import com.shopify.syrup.extensions.SyrupSupportExtensions
 import com.shopify.syrup.SyrupPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskAction
 import java.io.ByteArrayOutputStream
 import java.io.File
 
 open class GenerateSupportFilesTask : DefaultTask() {
-    lateinit var extension: SyrupSupportExtensions
+
+    @Nested lateinit var extension: SyrupSupportExtensions
 
     @TaskAction
     fun action() {
