@@ -16,7 +16,7 @@ open class GenerateModelsTask : DefaultTask() {
     @TaskAction
     fun action() {
         val execCmd = mutableListOf(
-            "syrup",
+            "${project.rootDir.path}/script/bin/syrup",
             "generate-models",
             File(schemaConfig.graphql).path,
             File(project.buildDir.path, SyrupPlugin.SYRUP_GENERATED_SOURCE_TMP_PATTERN.format(schemaConfig.name)).path,

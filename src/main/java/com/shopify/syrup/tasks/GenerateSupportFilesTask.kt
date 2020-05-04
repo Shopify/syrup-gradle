@@ -16,7 +16,7 @@ open class GenerateSupportFilesTask : DefaultTask() {
     @TaskAction
     fun action() {
         val execCmd = mutableListOf(
-            "syrup",
+            "${project.rootDir.path}/script/bin/syrup",
             "generate-support-files",
             File(project.projectDir, SyrupPlugin.SYRUP_SUPPORT_PACKAGE).path,
             "Kotlin",
