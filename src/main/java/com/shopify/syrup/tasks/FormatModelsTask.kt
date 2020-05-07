@@ -27,6 +27,8 @@ open class FormatModelsTask : DefaultTask() {
 
             it.args = listOf(
                 "-F",
+                "--experimental",
+                "--disabled_rules=no-wildcard-imports",
                 schemaConfig.moduleNameToSrcPath(project.projectDir).path + ALL_KOTLIN_SRC
             )
         }
