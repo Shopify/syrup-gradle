@@ -48,6 +48,11 @@ open class MoveModelsTask : DefaultTask() {
                 it.include("*.kt")
             }
 
+            copySpec.from(File(temporaryModelsOutputDirectoryPath, SUBSCRIPTIONS_DIR)) {
+                it.into(SUBSCRIPTIONS_DIR.toLowerCase())
+                it.include("*.kt")
+            }
+
             copySpec.includeEmptyDirs = true
             copySpec.into(modelsOutputDirectoryPath)
         }
@@ -62,5 +67,6 @@ open class MoveModelsTask : DefaultTask() {
         private const val MUTATIONS_DIR = "/Mutations"
         private const val RESPONSES_DIR = "/Responses"
         private const val FRAGMENTS_DIR = "/Fragments"
+        private const val SUBSCRIPTIONS_DIR = "/Subscriptions"
     }
 }

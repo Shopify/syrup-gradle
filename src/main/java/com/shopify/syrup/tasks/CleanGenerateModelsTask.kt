@@ -16,7 +16,7 @@ open class CleanGenerateModelsTask : DefaultTask() {
     fun action() {
         val modelsOutputDirectoryPath = schemaConfig.moduleNameToSrcPath(project.projectDir)
 
-        listOf("enums", "fragments", "inputs", "queries", "mutations", "responses").forEach {
+        listOf("enums", "fragments", "inputs", "queries", "mutations", "subscriptions", "responses").forEach {
             project.delete(File(modelsOutputDirectoryPath, it))
         }
     }
