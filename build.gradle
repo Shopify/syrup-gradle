@@ -3,21 +3,21 @@ def VERSION_NAME = "0.2.1"
 buildscript {
     repositories {
         google()
-        jcenter()
         mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61"
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61'
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
     }
 }
 
 apply plugin: 'kotlin'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'com.jfrog.bintray'
 
 ext {
     pom = [
@@ -25,21 +25,15 @@ ext {
             artifact          : 'syrup-gradle',
             libraryName       : 'syrup-gradle',
             libraryDescription: 'A Gradle plugin for generating GraphQL models with Syrup.',
-            siteUrl           : 'https://github.com/Shopify/syrup-gradle',
+            siteUrl           : 'https://shopify.github.io/syrup',
             gitUrl            : 'https://github.com/Shopify/syrup-gradle.git',
             licenseName       : 'The MIT License',
             licenseUrl        : 'https://opensource.org/licenses/MIT'
     ]
-
-    bintray = [
-            org        : 'shopify',
-            repo       : 'shopify-java',
-            name       : 'syrup-gradle',
-            allLicenses: ["MIT"]
-    ]
 }
 
 group pom.publishedGroupId
+archivesBaseName = pom.artifact
 version VERSION_NAME
 
 repositories {
@@ -74,57 +68,71 @@ task publishBinary(type: Copy) {
     into 'lib'
 }
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                groupId project.ext.pom.publishedGroupId
-                artifactId project.ext.pom.artifact
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
 
-                name project.ext.pom.libraryName
-                description project.ext.pom.libraryDescription
-                url project.ext.pom.siteUrl
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
-                licenses {
-                    license {
+artifacts {
+    archives shadowJar, javadocJar, sourcesJar
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: System.getenv("OSSRH_USERNAME"), password: System.getenv("OSSRH_PASSWORD"))
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: System.getenv("OSSRH_USERNAME"), password: System.getenv("OSSRH_PASSWORD"))
+            }
+
+            pom {
+                project {
+                    groupId project.ext.pom.publishedGroupId
+                    artifactId project.ext.pom.artifact
+
+                    name project.ext.pom.libraryName
+                    description project.ext.pom.libraryDescription
+                    url project.ext.pom.siteUrl
+
+                    developers {
+                        developer {
+                            name 'Shopify Inc.'
+                        }
+                    }
+
+                    licenses {
+                        license {
                         name project.ext.pom.licenseName
                         url project.ext.pom.licenseUrl
+                        }
                     }
-                }
 
-                scm {
-                    connection project.ext.pom.gitUrl
-                    developerConnection project.ext.pom.gitUrl
-                    url project.ext.pom.siteUrl
+                    scm {
+                        connection = project.ext.pom.gitUrl
+                        developerConnection = project.ext.pom.gitUrl
+                        url = project.ext.pom.siteUrl
+                    }
                 }
             }
         }
     }
 }
-
-artifacts {
-    archives shadowJar
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-
-    configurations = ['archives']
-
-    pkg {
-        userOrg = project.ext.bintray.org
-        repo = project.ext.bintray.repo
-        name = project.ext.bintray.name
-        desc = project.ext.pom.libraryDescription
-        websiteUrl = project.ext.pom.siteUrl
-        vcsUrl = project.ext.pom.gitUrl
-        licenses = project.ext.bintray.allLicenses
-        version {
-            desc = project.ext.pom.libraryDescription
-        }
-        publish = true
-    }
-}
-
-bintrayUpload.dependsOn(shadowJar)
