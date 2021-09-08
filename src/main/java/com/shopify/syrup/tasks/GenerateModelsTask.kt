@@ -2,6 +2,7 @@ package com.shopify.syrup.tasks
 
 import com.shopify.syrup.extensions.SchemaConfig
 import com.shopify.syrup.SyrupPlugin
+import com.shopify.syrup.syrupBin
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Nested
@@ -16,7 +17,7 @@ open class GenerateModelsTask : DefaultTask() {
     @TaskAction
     fun action() {
         val execCmd = mutableListOf(
-            "syrup",
+            project.syrupBin(),
             "generate-models",
             File(schemaConfig.graphql).path,
             File(project.buildDir.path, SyrupPlugin.SYRUP_GENERATED_SOURCE_TMP_PATTERN.format(schemaConfig.name)).path,
