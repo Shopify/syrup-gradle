@@ -10,10 +10,12 @@ import com.shopify.syrup.tasks.FormatModelsTask
 import com.shopify.syrup.tasks.GenerateModelsTask
 import com.shopify.syrup.tasks.GenerateSupportFilesTask
 import com.shopify.syrup.tasks.MoveModelsTask
+import groovy.lang.GString
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import java.io.IOException
 
 class SyrupPlugin : Plugin<Project> {
 
@@ -89,3 +91,20 @@ class SyrupPlugin : Plugin<Project> {
     }
 }
 
+fun Project.syrupBin(): String {
+    val syrupBin = properties["syrupBin"] as? GString ?: "syrup"
+
+    try {
+        Runtime.getRuntime().exec("$syrupBin -v").apply { waitFor() }.exitValue()
+    } catch (e: IOException) {
+        throw IOException(
+            """
+Unable to find syrup executable in the exec PATH. Ensure syrup is installed
+and accessible in your PATH, or manually set `project.ext.syrupBin` to the
+executable's path.
+            """
+        )
+    }
+
+    return syrupBin.toString()
+}

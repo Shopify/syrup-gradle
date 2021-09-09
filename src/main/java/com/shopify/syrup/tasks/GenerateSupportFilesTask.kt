@@ -2,6 +2,7 @@ package com.shopify.syrup.tasks
 
 import com.shopify.syrup.extensions.SyrupSupportExtensions
 import com.shopify.syrup.SyrupPlugin
+import com.shopify.syrup.syrupBin
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Nested
@@ -16,7 +17,7 @@ open class GenerateSupportFilesTask : DefaultTask() {
     @TaskAction
     fun action() {
         val execCmd = mutableListOf(
-            "syrup",
+            project.syrupBin(),
             "generate-support-files",
             File(project.projectDir, SyrupPlugin.SYRUP_SUPPORT_PACKAGE).path,
             "Kotlin",
