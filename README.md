@@ -1,4 +1,5 @@
-#syrup-gradle
+# syrup-gradle
+
 A Gradle plugin for generating GraphQL models with [Shopify/syrup](https://github.com/shopify/syrup)
 
 ## Configuration
